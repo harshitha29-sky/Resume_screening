@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth_router
+from app.api import auth_router, candidates_router, dashboard_router, export_router, uploads_router
 from app.database.init_db import init_db
 
 
@@ -28,6 +28,10 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/api")
+app.include_router(uploads_router)
+app.include_router(candidates_router)
+app.include_router(dashboard_router)
+app.include_router(export_router)
 
 
 @app.get("/")
