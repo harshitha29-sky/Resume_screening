@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - backend/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./uploads:/app/uploads
+      - ./exports:/app/exports
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app/frontend
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
+    depends_on:
+      - backend
