@@ -3,9 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
 from app.database.deps import get_db
-from app.models.user import User
 from app.schemas.upload import JobDescriptionUploadResponse, ResumeUploadResponse, UploadRead
 from app.services.uploads import UploadService
 from app.utils.json_store import loads
@@ -21,10 +19,9 @@ def get_upload_service() -> UploadService:
 async def upload_resumes(
     files: Annotated[list[UploadFile], File(...)],
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
     service: Annotated[UploadService, Depends(get_upload_service)],
 ) -> ResumeUploadResponse:
-    uploads = await service.upload_resumes(db, files, current_user)
+    uploads = await service.upload_resumes(db, files)
     return ResumeUploadResponse(
         uploaded_count=len(uploads),
         uploads=[UploadRead.model_validate(upload) for upload in uploads],
@@ -35,10 +32,9 @@ async def upload_resumes(
 async def upload_job_description(
     file: Annotated[UploadFile, File(...)],
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
     service: Annotated[UploadService, Depends(get_upload_service)],
 ) -> JobDescriptionUploadResponse:
-    job, upload = await service.upload_job_description(db, file, current_user)
+    job, upload = await service.upload_job_description(db, file)
     return JobDescriptionUploadResponse(
         job_description_id=job.id,
         filename=upload.filename,

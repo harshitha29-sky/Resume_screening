@@ -5,9 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
 from app.database.deps import get_db
-from app.models.user import User
 from app.schemas.candidate import CandidateDetail, CandidateSearchParams, PaginatedCandidates, RankingItem
 from app.services.candidates import get_candidate_detail, get_resume_upload, list_candidates, ranking
 
@@ -17,7 +15,6 @@ router = APIRouter(tags=["candidates"])
 @router.get("/candidates", response_model=PaginatedCandidates)
 def read_candidates(
     db: Annotated[Session, Depends(get_db)],
-    _: Annotated[User, Depends(get_current_user)],
     search: str | None = None,
     min_score: float | None = Query(default=None, ge=0, le=100),
     max_score: float | None = Query(default=None, ge=0, le=100),
@@ -42,7 +39,6 @@ def read_candidates(
 def read_candidate(
     candidate_id: int,
     db: Annotated[Session, Depends(get_db)],
-    _: Annotated[User, Depends(get_current_user)],
 ) -> CandidateDetail:
     candidate = get_candidate_detail(db, candidate_id)
     if candidate is None:
@@ -54,7 +50,6 @@ def read_candidate(
 def preview_resume(
     candidate_id: int,
     db: Annotated[Session, Depends(get_db)],
-    _: Annotated[User, Depends(get_current_user)],
 ) -> FileResponse:
     upload = get_resume_upload(db, candidate_id)
     if upload is None or not Path(upload.file_path).exists():
@@ -65,6 +60,5 @@ def preview_resume(
 @router.get("/ranking", response_model=list[RankingItem])
 def read_ranking(
     db: Annotated[Session, Depends(get_db)],
-    _: Annotated[User, Depends(get_current_user)],
 ) -> list[RankingItem]:
     return ranking(db)

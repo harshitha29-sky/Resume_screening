@@ -4,9 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
 from app.database.deps import get_db
-from app.models.user import User
 from app.services.exporter import export_rankings_csv, export_rankings_json
 
 router = APIRouter(prefix="/export", tags=["export"])
@@ -15,7 +13,6 @@ router = APIRouter(prefix="/export", tags=["export"])
 @router.get("/csv")
 def export_csv(
     db: Annotated[Session, Depends(get_db)],
-    _: Annotated[User, Depends(get_current_user)],
 ) -> FileResponse:
     path = export_rankings_csv(db)
     return FileResponse(path=path, filename=path.name, media_type="text/csv")
@@ -24,7 +21,6 @@ def export_csv(
 @router.get("/json")
 def export_json(
     db: Annotated[Session, Depends(get_db)],
-    _: Annotated[User, Depends(get_current_user)],
 ) -> FileResponse:
     path = export_rankings_json(db)
     return FileResponse(path=path, filename=path.name, media_type="application/json")

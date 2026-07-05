@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from app.models.candidate import Candidate
 from app.models.job_description import JobDescription
 from app.models.upload import Upload
-from app.models.user import User
 from app.services.parser import JobDescriptionParser, ResumeParser
 from app.services.scoring import ResumeMatcher
 from app.utils.config import settings
@@ -21,7 +20,7 @@ class UploadService:
         self.job_parser = JobDescriptionParser()
         self.matcher = ResumeMatcher()
 
-    async def upload_resumes(self, db: Session, files: list[UploadFile], user: User) -> list[Upload]:
+    async def upload_resumes(self, db: Session, files: list[UploadFile]) -> list[Upload]:
         if len(files) > settings.max_resume_upload_count:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -66,7 +65,7 @@ class UploadService:
                 status="parsed",
                 file_size=size,
                 candidate_id=candidate.id,
-                user_id=user.id,
+                user_id=None,
             )
             db.add(upload)
             uploads.append(upload)
@@ -80,7 +79,7 @@ class UploadService:
             db.refresh(upload)
         return uploads
 
-    async def upload_job_description(self, db: Session, file: UploadFile, user: User) -> tuple[JobDescription, Upload]:
+    async def upload_job_description(self, db: Session, file: UploadFile) -> tuple[JobDescription, Upload]:
         filename = self._clean_filename(file.filename)
         validate_upload_file(file)
         upload_dir = self._upload_dir("job_description")
@@ -104,7 +103,7 @@ class UploadService:
             required_experience=parsed.required_experience,
             education=dumps(parsed.education),
             keywords=dumps(parsed.keywords),
-            owner_id=user.id,
+            owner_id=None,
         )
         db.add(job)
         db.flush()
@@ -117,7 +116,7 @@ class UploadService:
             status="parsed",
             file_size=size,
             job_description_id=job.id,
-            user_id=user.id,
+            user_id=None,
         )
         db.add(upload)
         db.commit()

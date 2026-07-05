@@ -1,5 +1,5 @@
-import { BarChart3, FileText, Home, LogOut, Moon, Settings, Upload, UserSearch, Users } from "lucide-react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { BarChart3, FileText, Home, Moon, Settings, Upload, UserSearch, Users } from "lucide-react";
+import { NavLink, Outlet } from "react-router-dom";
 
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: Home },
@@ -12,13 +12,6 @@ const links = [
 ];
 
 export function Layout() {
-  const navigate = useNavigate();
-
-  function logout() {
-    localStorage.removeItem("auth_token");
-    navigate("/login");
-  }
-
   function toggleDarkMode() {
     document.documentElement.classList.toggle("dark");
     localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
@@ -53,9 +46,6 @@ export function Layout() {
         <div className="flex items-center gap-2">
           <button className="icon-button" onClick={toggleDarkMode} title="Toggle dark mode">
             <Moon className="h-4 w-4" />
-          </button>
-          <button className="icon-button" onClick={logout} title="Log out">
-            <LogOut className="h-4 w-4" />
           </button>
         </div>
       </header>
